@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERDASH - X-TREME WEB EDITION</title>
+    <style>
+        :root {
+            --bg-color: #050508;
+            --neon-cyan: #00ffff;
+            --neon-magenta: #ff00ff;
+            --neon-pink: #ff00ff;
+            --text-dim: #008f8f;
+            --panel-bg: rgba(10, 10, 21, 0.9);
+            --font-main: 'Consolas', 'Courier New', monospace;
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.98;
+            }
+
+            5% {
+                opacity: 0.95;
+            }
+
+            10% {
+                opacity: 0.99;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                text-shadow: 0 0 5px var(--neon-magenta);
+            }
+
+            50% {
+                text-shadow: 0 0 20px var(--neon-magenta);
+            }
+
+            100% {
+                text-shadow: 0 0 5px var(--neon-magenta);
+            }
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-2px, 2px);
+            }
+
+            40% {
+                transform: translate(-2px, -2px);
+            }
+
+            60% {
+                transform: translate(2px, 2px);
+            }
+
+            80% {
+                transform: translate(2px, -2px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-cyan);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            animation: flicker 0.1s infinite;
+        }
+
+        /* CRT EFFECT */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--neon-magenta);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 4px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .panel-magenta {
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.1);
+        }
+
+        .panel-header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .stat-group {
+            margin-bottom: 25px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--neon-cyan);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .progress-container {
+            height: 20px;
+            background: #111;
+            border: 1px solid #333;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--neon-magenta);
+            box-shadow: 0 0 10px var(--neon-magenta);
+            transition: width 0.5s ease-out;
+        }
+
+        .progress-bar-cyan {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        #disk-stats {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+        }
+
+        #service-list {
+            list-style: none;
+            font-size: 0.9rem;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+        }
+
+        .service-name {
+            color: var(--neon-cyan);
+        }
+
+        .service-status {
+            color: var(--neon-magenta);
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 0.7rem;
+            color: #333;
+        }
+
+        button {
+            margin-top: auto;
+            background: transparent;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 10px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        .glitch-text {
+            display: inline-block;
+        }
+
+        .glitch-text:hover {
+            animation: glitch 0.3s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scanline"></div>
+    <header>
+        <h1 id="main-title" class="glitch-text">>> CYBERDASH_v2.0_WEB_OS</h1>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">[ NEURAL_CORE_LOAD ]</div>
+
+            <div class="stat-group">
+                <div class="stat-label">CPU_SYNC <span id="cpu-val">0%</span></div>
+                <div class="progress-container">
+                    <div id="pb-cpu" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-label">MEM_SYNC <span id="mem-val">0%</span></div>
+                <div class="progress-container">
+                    <div id="pb-mem" class="progress-bar progress-bar-cyan"></div>
+                </div>
+            </div>
+
+            <div id="disk-stats">SCANNING DISKS...</div>
+
+            <button onclick="updateStats()">FORCE_SCAN</button>
+        </div>
+
+        <div class="panel panel-magenta">
+            <div class="panel-header">[ ACTIVE_SERVICES ]</div>
+            <div id="service-list">
+                <div class="service-item">
+                    <span>INITIALIZING...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">SYSTEM_AUTH: OVERRIDE_ACTIVE | WEB_READY</div>
+
+    <script>
+        const glitchChars = "01!@#$%^&*()_+";
+        const originalTitle = ">> CYBERDASH_v2.0_WEB_OS";
+
+        function glitchIntro() {
+            const title = document.getElementById('main-title');
+            let count = 0;
+            const interval = setInterval(() => {
+                let text = "";
+                for (let i = 0; i < originalTitle.length; i++) {
+                    text += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                }
+                title.innerText = text;
+                count++;
+                if (count > 15) {
+                    clearInterval(interval);
+                    title.innerText = originalTitle;
+                }
+            }, 50);
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                document.getElementById('pb-cpu').style.width = data.cpu + '%';
+                document.getElementById('cpu-val').innerText = Math.round(data.cpu) + '%';
+
+                document.getElementById('pb-mem').style.width = data.mem + '%';
+                document.getElementById('mem-val').innerText = Math.round(data.mem) + '%';
+
+                const diskStats = document.getElementById('disk-stats');
+                if (data.disks) {
+                    diskStats.innerText = Array.isArray(data.disks) ? data.disks.join(' | ') : data.disks;
+                }
+
+                const serviceList = document.getElementById('service-list');
+                if (data.services) {
+                    const services = Array.isArray(data.services) ? data.services : [data.services];
+                    serviceList.innerHTML = services.map(s => `
+                        <div class="service-item">
+                            <span class="service-name">${s.Name}</span>
+                            <span class="service-status">${s.Status}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error("Failed to fetch stats", e);
+            }
+        }
+
+        glitchIntro();
+        updateStats();
+        setInterval(updateStats, 2000);
+    </script>
+</body>
+
+</html>
